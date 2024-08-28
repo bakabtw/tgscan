@@ -1,9 +1,16 @@
+FROM elasticsearch:7.17.6 AS esbuilder
+
+COPY --chmod=0755 build_index.sh /usr/local/bin/build_index.sh
+
+RUN apt-get update \
+    && apt-get install procps -y \
+    && apt-get install httping -y \
+    && /usr/local/bin/docker-entrypoint.sh elasticsearch -d -E path.data=/tmp/data -E cluster.name=elasticsearch -E discovery.type=single-node \
+    && while ! httping -qc1 http://localhost:9200 ; do sleep 1 ; done \
+    && /usr/local/bin/build_index.sh \
+    && apt-get clean
+
+
 FROM elasticsearch:7.17.6
 
-RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install --batch https://github.com/medcl/elasticsearch-analysis-pinyin/releases/download/v7.17.6/elasticsearch-analysis-pinyin-7.17.6.zip
-RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install --batch https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.17.6/elasticsearch-analysis-ik-7.17.6.zip
-RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install --batch https://github.com/medcl/elasticsearch-analysis-stconvert/releases/download/v7.17.6/elasticsearch-analysis-stconvert-7.17.6.zip
-
-COPY build_index.sh /usr/local/bin/
-RUN chmod 755 /usr/local/bin/build_index.sh
-RUN echo "/usr/local/bin/build_index.sh" >> /usr/local/bin/docker-entrypoint.sh
+COPY --from=esbuilder /tmp/data/ /usr/share/elasticsearch/data/
