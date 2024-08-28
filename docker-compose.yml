@@ -62,6 +62,7 @@ services:
       - POSTGRES_PASSWORD=${PG_PASSWORD}
     volumes:
       - postgresql:/var/lib/postgresql/data/
+      - ./api-server/src/main/resources/sql/schema.sql:/docker-entrypoint-initdb.d/schema.sql
 
   elasticsearch:
     image: elasticsearch:7.17.6

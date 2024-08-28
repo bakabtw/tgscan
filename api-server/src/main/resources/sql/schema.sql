@@ -2,24 +2,6 @@ create table if not exists room
 (
     id           serial
         primary key,
-    link         varchar(255) not null
-        constraint ux_tg_room__link
-            unique,
-    name         varchar(255),
-    jhi_desc     text,
-    member_cnt   integer,
-    type         varchar(255),
-    status       varchar(255) not null,
-    collected_at timestamp
-);
-
-alter table room
-    owner to demo;
-
-create table if not exists room_v2
-(
-    id           serial
-        primary key,
     room_id      varchar(255) unique,
     link         varchar(255) not null,
     name         varchar(255),
@@ -34,7 +16,7 @@ create table if not exists room_v2
     extra        text
 );
 
-alter table room_v2
+alter table room
     owner to demo;
 
 create table if not exists message
