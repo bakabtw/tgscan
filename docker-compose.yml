@@ -1,28 +1,30 @@
 version: '3'
 
 services:
-
   api-server:
-    image: api-server:v1.0.0
     build:
       context: ./api-server
       dockerfile: Dockerfile
-    network_mode: host
-    restart: always
+    container_name: api-server
+    restart: unless-stopped
+    depends_on:
+      - postgresql
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
+      - SPRING_ELASTICSEARCH_URIS=${SPRING_ELASTICSEARCH_URIS}
     volumes:
       - ./api-server/MessageSync_last_id.txt:/app/MessageSync_last_id.txt
       - ./icon:/app/icon
-    environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-      SPRING_ELASTICSEARCH_URIS: ${SPRING_ELASTICSEARCH_URIS}
+
   msg-scraper:
-    image: msg-scraper:v1.0.0
     build:
       context: ./msg-scraper
       dockerfile: Dockerfile
-    network_mode: host
-    restart: always
+    container_name: msg-scraper
+    restart: unless-stopped
+    depends_on:
+      - postgresql
     environment:
       - PHONE=${PHONE}
       - API_HASH=${API_HASH}
@@ -38,22 +40,53 @@ services:
       - PROXY_PORT=${PROXY_PORT}
       - PROXY_HOST=${PROXY_HOST}
 
-
   web-app:
-    image: web-app:v1.0.0
     build:
       context: ./web-app
       dockerfile: Dockerfile
-    network_mode: host
-    restart: always
+    container_name: web-app
+    restart: unless-stopped
     depends_on:
       - api-server
     volumes:
-      - ./certbot/www:/var/www/certbot/:ro
-      - ./certbot/conf/:/etc/nginx/ssl/:ro
       - ./icon:/var/www/tgscan.xyz/images:ro
-  certbot:
-    image: certbot/certbot:latest
+    ports:
+      - "80:80"
+
+  postgresql:
+    image: postgres:14.5
+    container_name: postgresql
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=demo
+      - POSTGRES_PASSWORD=tgscan1024
+      - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
-      - ./certbot/www/:/var/www/certbot/:rw
-      - ./certbot/conf/:/etc/letsencrypt/:rw
+      - postgresql:/var/lib/postgresql/data/
+
+  elasticsearch:
+    image: elasticsearch:7.17.6
+    container_name: elasticsearch
+    restart: unless-stopped
+    environment:
+      - "cluster.name=elasticsearch"
+      - "discovery.type=single-node"
+      - "ES_JAVA_OPTS=-Xms2G -Xmx2G"
+      - bootstrap.memory_lock=true
+    volumes:
+      - elasticsearch:/usr/share/elasticsearch/data
+
+  kibana:
+    image: kibana:7.17.6
+    container_name: kibana
+    restart: unless-stopped
+    depends_on:
+      - elasticsearch
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+
+volumes:
+  postgresql:
+  elasticsearch:
