@@ -39,6 +39,8 @@ services:
       - PROXY_USERNAME=${PROXY_USERNAME}
       - PROXY_PORT=${PROXY_PORT}
       - PROXY_HOST=${PROXY_HOST}
+    volumes:
+      - msg-scraper:/app/sessions/
 
   web-app:
     build:
@@ -99,3 +101,4 @@ services:
 volumes:
   postgresql:
   elasticsearch:
+  msg-scraper:

@@ -64,7 +64,7 @@ async def save_messages_to_db(messages: List, conn):
 
 
 async def main():
-    async with TelegramClient(phone, api_id, api_hash, proxy=proxy, ) as client:
+    async with TelegramClient(f"sessions/{phone}", api_id, api_hash, proxy=proxy) as client:
         logging.info("Open TelegramClient")
 
         while True:
