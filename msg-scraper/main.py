@@ -2,6 +2,7 @@ import asyncio
 import logging
 import os
 from typing import List
+from datetime import datetime
 
 import psycopg2
 import socks
@@ -31,6 +32,28 @@ proxy = None
 use_proxy = os.environ.get("USE_PROXY", "False").lower() == "true"
 if use_proxy:
     proxy = (socks.SOCKS5, proxy_host, proxy_port, True, proxy_username, proxy_password)
+
+sync_timer = int(datetime.timestamp(datetime.now()))
+
+
+async def sync_chats(client: TelegramClient):
+    logging.info("Syncing chats...")
+
+    conn = psycopg2.connect(database=database, user=user, password=password, host=host, port=port)
+
+    async for dialog in client.iter_dialogs():
+        if dialog.id < 0:
+            entity = await client.get_entity(dialog.id)
+
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT EXISTS(SELECT 1 FROM offsets WHERE chat_id = {dialog.id});")
+            exists = cursor.fetchone()[0]
+
+            if not exists:
+                logging.info(f"Adding chat {dialog.id} to DB")
+                cursor.execute(f"INSERT INTO \"offsets\" (\"chat_id\", \"last_offset\", \"crawl_link\", \"room_name\", \"link\") VALUES ('{dialog.id}', '0', '0', '{dialog.title}', 'https://t.me/{entity.username}');")
+
+            conn.commit()
 
 
 async def fetch_messages(client: TelegramClient, chat_id: int, offset_id: int = 0):
@@ -66,11 +89,17 @@ async def save_messages_to_db(messages: List, conn):
 
 
 async def main():
+    global sync_timer
+
     async with TelegramClient(f"sessions/{phone}", api_id, api_hash, proxy=proxy) as client:
         logging.info("Open TelegramClient")
 
         while True:
             try:
+                if int(datetime.timestamp(datetime.now())) - sync_timer > 60:
+                    await sync_chats(client)
+                    sync_timer = int(datetime.timestamp(datetime.now()))
+
                 conn = psycopg2.connect(database=database, user=user, password=password, host=host, port=port)
                 cursor = conn.cursor()
                 cursor.execute("SELECT chat_id FROM offsets;")
