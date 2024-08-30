@@ -18,6 +18,7 @@ function typeBadge(type) {
 }
 
 function chatId2link(chatId) {
+    chatId = "-100" + chatId
     let item = JSON.parse(localStorage.getItem('roomLinks'));
     let map = item.reduce((acc, item) => {
         if (item.chatId && item.link) {
@@ -29,6 +30,7 @@ function chatId2link(chatId) {
 }
 
 function chatId2name(chatId) {
+    chatId = "-100" + chatId
     let item = JSON.parse(localStorage.getItem('roomLinks'));
     let map = item.reduce((acc, item) => {
         if (item.chatId && item.roomName) {
