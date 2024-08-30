@@ -1,5 +1,6 @@
 import os
 import logging
+import shutil
 
 import asyncio
 import socks
@@ -21,8 +22,12 @@ if use_proxy:
 async def main():
     if not os.path.exists(f"sessions/{phone}.session"):
         logging.info("Creating a new sessions.")
-        client = TelegramClient(f"sessions/{phone}", api_id, api_hash, proxy=proxy)
+        
+        client = TelegramClient(f"{phone}", api_id, api_hash, proxy=proxy)
         await client.start(phone=phone)
+
+        logging.info("Authorized successfully")
+        shutil.move(f"{phone}.session", f"sessions/{phone}.session")
     else:
         logging.error("The session already exists.")
 

@@ -3,6 +3,7 @@ import logging
 import os
 from typing import List
 from datetime import datetime
+import time
 
 import psycopg2
 import socks
@@ -142,4 +143,10 @@ async def main():
 
 if __name__ == '__main__':
     logging.info("Starting the program.")
+
+    while not os.path.exists(f"sessions/{phone}.session"):
+        logging.error("A session file doesn't exist. Please run `docker exec -ti msg-scraper python3 auth.py` and follow the instructions")
+        logging.error("Wating 60 seconds...")
+        time.sleep(60)
+    
     asyncio.run(main())
