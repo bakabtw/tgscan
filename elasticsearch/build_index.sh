@@ -13,7 +13,7 @@ curl -XPUT "http://localhost:9200/message.0708" -H "Content-type: application/js
       "analysis": {
         "tokenizer": {
           "my_ik_smart": {
-            "type": "ik_smart",
+            "type": "standard",
             "enable_lowercase": false
           }
         },
@@ -32,22 +32,53 @@ curl -XPUT "http://localhost:9200/message.0708" -H "Content-type: application/js
             "split_on_numerics": false,
             "stem_english_possessive": true,
             "preserve_original": true
+          },
+          "english_stop": {
+            "type":       "stop",
+            "stopwords":  "_english_" 
+          },
+          "english_stemmer": {
+            "type":       "stemmer",
+            "language":   "english"
+          },
+          "english_possessive_stemmer": {
+            "type":       "stemmer",
+            "language":   "possessive_english"
+          },
+          "russian_stop": {
+            "type":       "stop",
+            "stopwords":  "_russian_" 
+          },
+          "russian_stemmer": {
+            "type":       "stemmer",
+            "language":   "russian"
           }
         },
         "analyzer": {
+          "ru_en": {
+            "tokenizer":  "standard",
+            "filter": [
+              "lowercase",
+              "russian_stop",
+              "russian_stemmer",
+              "english_possessive_stemmer",
+              "english_stop",
+              "english_stemmer"
+            ]
+          },
           "index_analyzer": {
             "filter": [
               "lowercase",
               "tsconvert"
             ],
-            "tokenizer": "ik_max_word"
+            "tokenizer": "standard"
           },
           "phrase_index_analyzer": {
             "filter": [
               "lowercase",
               "tsconvert"
             ],
-            "tokenizer": "my_ik_smart"
+            "tokenizer": "standard"
           },
           "search_analyzer": {
             "filter": [
@@ -55,7 +86,7 @@ curl -XPUT "http://localhost:9200/message.0708" -H "Content-type: application/js
               "tsconvert",
               "lowercase"
             ],
-            "tokenizer": "my_ik_smart"
+            "tokenizer": "standard"
           }
         }
       }
@@ -84,23 +115,23 @@ curl -XPUT "http://localhost:9200/message.0708" -H "Content-type: application/js
       },
       "title": {
         "type": "text",
-        "analyzer": "index_analyzer",
-        "search_analyzer": "search_analyzer"
+        "analyzer": "ru_en",
+        "search_analyzer": "ru_en"
       },
       "content": {
         "type": "text",
-        "analyzer": "index_analyzer",
-        "search_analyzer": "search_analyzer"
+        "analyzer": "ru_en",
+        "search_analyzer": "ru_en"
       },
       "phrase_title": {
         "type": "text",
-        "analyzer": "phrase_index_analyzer",
-        "search_analyzer": "search_analyzer"
+        "analyzer": "ru_en",
+        "search_analyzer": "ru_en"
       },
       "phrase_content": {
         "type": "text",
-        "analyzer": "phrase_index_analyzer",
-        "search_analyzer": "search_analyzer"
+        "analyzer": "ru_en",
+        "search_analyzer": "ru_en"
       }
     }
   }
