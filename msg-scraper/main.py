@@ -7,6 +7,7 @@ import psycopg2
 import socks
 from dotenv import load_dotenv
 from telethon import TelegramClient
+from telethon.tl.types import PeerUser, PeerChat, PeerChannel
 
 load_dotenv()
 
@@ -34,8 +35,9 @@ if use_proxy:
 
 async def fetch_messages(client: TelegramClient, chat_id: int, offset_id: int = 0):
     messages = []
+    channel = await client.get_entity(chat_id)
 
-    async for msg in client.iter_messages(chat_id, reverse=True, limit=1000, offset_id=offset_id):
+    async for msg in client.iter_messages(channel, reverse=True, limit=100, offset_id=offset_id):
         messages.append(msg)
     return messages
 
