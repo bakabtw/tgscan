@@ -58,6 +58,14 @@ By that point, docker will automatically download and start all containers.
 docker exec -ti elasticsearch /usr/local/bin/build_index.sh
 ```
 
+Correct response:
+```bash
+$ docker exec -ti elasticsearch /usr/local/bin/build_index.sh
+
+{"acknowledged":true,"shards_acknowledged":true,"index":"message.0708"}
+{"acknowledged":true,"shards_acknowledged":true,"index":"room.0719"
+```
+
 - Authorize in telegram
 ```
 docker exec -ti msg-scraper python3 auth.py
