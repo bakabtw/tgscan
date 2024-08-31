@@ -24,6 +24,7 @@ port = os.environ.get("PG_PORT")
 api_id = int(os.environ.get("API_ID"))
 api_hash = os.environ.get("API_HASH")
 phone = os.environ.get("PHONE")
+sleep_time = os.environ.get("SLEEP_TIME")
 proxy_host = os.environ.get("PROXY_HOST")
 proxy_port = int(os.environ.get("PROXY_PORT"))
 proxy_username = os.environ.get("PROXY_USERNAME")
@@ -135,7 +136,7 @@ async def main():
                 conn.close()
                 logging.info("Database connection closed.")
 
-                await asyncio.sleep(10)
+                await asyncio.sleep(sleep_time)
 
             except Exception as e:
                 logging.error(f"Error occurred: {e}")

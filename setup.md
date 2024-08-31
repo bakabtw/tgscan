@@ -41,6 +41,7 @@ cp .env.template .env
         - `PROXY_USERNAME` - socks5 proxy username
         - `PROXY_PASSWORD` - socks5 proxy password
     - Change these only if you know what you're doing
+        - `SLEEP_TIME` - time in seconds between requests
         - `SPRING_PROFILES_ACTIVE` - environment for `api-server` (values: `prod` or `dev`)
         - `SPRING_DATASOURCE_URL` - postgresql jdbc string
         - `SPRING_ELASTICSEARCH_URIS` - elasticsearch URL. Change it in case of using an external instance

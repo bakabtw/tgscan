@@ -29,6 +29,7 @@ services:
       - PHONE=${PHONE}
       - API_HASH=${API_HASH}
       - API_ID=${API_ID}
+      - SLEEP_TIME=60
       - PG_DATABASE=${PG_DATABASE}
       - PG_USER=${PG_USER}
       - PG_PASSWORD=${PG_PASSWORD}
